@@ -1,0 +1,68 @@
+:root {
+    --color-dark-blue: #212A31;
+    --color-dark-gray: #2E3944;
+    --color-medium-blue: #124E66;
+    --color-light-gray: #748D92;
+    --color-lightest-gray: #D3D9D4;
+  }
+  
+  body {
+    background-color: var(--color-lightest-gray);
+    color: var(--color-dark-blue);
+  }
+  
+  .navbar {
+    background-color: var(--color-dark-gray);
+  }
+  
+  .navbar-brand {
+    color: var(--color-lightest-gray);
+  }
+  
+  .btn-danger {
+    background-color: var(--color-medium-blue);
+    border-color: var(--color-medium-blue);
+  }
+  
+  .btn-danger:hover {
+    background-color: var(--color-dark-blue);
+    border-color: var(--color-dark-blue);
+  }
+  
+  .section-padding {
+    padding: 2rem;
+  }
+  
+  .bg-light {
+    background-color: var(--color-lightest-gray);
+  }
+  
+  .text-muted {
+    color: var(--color-light-gray);
+  }
+  
+  .text-danger {
+    color: var(--color-medium-blue);
+  }
+  
+  .card {
+    border: 1px solid var(--color-light-gray);
+  }
+  
+  .carousel-item {
+    background-color: var(--color-lightest-gray);
+  }
+  
+  .carousel-indicators .active {
+    background-color: var(--color-medium-blue);
+  }
+  .full-height {
+    min-height: 100vh;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 80px;
+    padding-bottom: 80px;
+    border-bottom: 2px solid #f5f5dc; /* cream */
+}

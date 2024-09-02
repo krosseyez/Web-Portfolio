@@ -156,6 +156,32 @@ if (isset($_POST['delete_service'])) {
 
 // You can add code to handle editing services similarly
 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_project'])) {
+    $project_name = htmlspecialchars($_POST['project_name']);
+    $project_link = htmlspecialchars($_POST['project_link']);
+    $project_image = $_FILES['project_image']['name'];
+
+    // Handle file upload
+    if ($project_image) {
+        $target_dir = "../images/portfolio/";
+        $target_file = $target_dir . basename($project_image);
+        move_uploaded_file($_FILES['project_image']['tmp_name'], $target_file);
+    }
+
+    // Insert the project into the database
+    try {
+        $stmt = $pdo->prepare("INSERT INTO portfolio (project_name, project_image, project_link) VALUES (:project_name, :project_image, :project_link)");
+        $stmt->execute([
+            'project_name' => $project_name,
+            'project_image' => $target_file,
+            'project_link' => $project_link
+        ]);
+        echo '<script>alert("Project added successfully."); window.location.href="adminDash.php";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -373,6 +399,65 @@ if (isset($_POST['delete_service'])) {
     </div>
 </section>
 
+<section id="edit-portfolio-section" class="section-padding py-5">
+    <div class="container-lg card shadow px-5 py-4">
+        <h2>Edit Portfolio Section</h2>
+
+        <!-- Add New Project Form -->
+        <form action="adminDash.php" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="project_name" class="form-label">Project Name</label>
+                <input type="text" class="form-control" id="project_name" name="project_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="project_image" class="form-label">Project Image</label>
+                <input type="file" class="form-control" id="project_image" name="project_image" required>
+            </div>
+            <div class="mb-3">
+                <label for="project_link" class="form-label">Project Link</label>
+                <input type="url" class="form-control" id="project_link" name="project_link" required>
+            </div>
+            <button type="submit" name="add_project" class="btn btn-primary">Add Project</button>
+        </form>
+
+        <!-- Display Existing Projects -->
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Project Image</th>
+                    <th>Link</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Fetch existing projects
+                $stmt = $pdo->query("SELECT * FROM portfolio ORDER BY created_at DESC");
+                $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($projects as $project):
+                ?>
+                    <tr>
+                        <td><?= htmlspecialchars($project['project_name']); ?></td>
+                        <td><img src="<?= htmlspecialchars($project['project_image']); ?>" style="max-height: 50px;"></td>
+                        <td><a href="<?= htmlspecialchars($project['project_link']); ?>" target="_blank">Live Demo</a></td>
+                        <td>
+                            <form action="editProject.php" method="post" style="display:inline;">
+                                <input type="hidden" name="projectID" value="<?= $project['projectID']; ?>">
+                                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                            </form>
+                            <form action="deleteProject.php" method="post" style="display:inline;">
+                                <input type="hidden" name="projectID" value="<?= $project['projectID']; ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
 
 

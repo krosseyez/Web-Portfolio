@@ -76,6 +76,15 @@ try {
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
+
+try {
+  // Fetch portfolio projects from the database
+  $stmt = $pdo->query("SELECT * FROM portfolio ORDER BY created_at DESC");
+  $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  echo "Error: " . $e->getMessage();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -208,6 +217,24 @@ try {
     </div>
 </section>
 
+<section id="portfolio" class="section-padding py-5">
+    <div class="container-lg">
+        <div class="row">
+            <div class="col text-center section-heading">
+                <h3>Latest Work</h3>
+            </div>
+        </div>
+        <div class="row">
+            <?php foreach ($projects as $project): ?>
+                <div class="col-md-6 col-lg-4 pt-5">
+                    <img class="w-100 my-3 img-thumbnail" src="<?= htmlspecialchars($project['project_image']); ?>" alt="Project Image">
+                    <h3 class="fs-5 my-2"><?= htmlspecialchars($project['project_name']); ?></h3>
+                    <p><a class="text-info" href="<?= htmlspecialchars($project['project_link']); ?>" target="_blank">Live Demo</a></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

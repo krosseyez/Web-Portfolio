@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-require_once '../php/dbCon.php';
+require_once 'dbCon.php';
 
 // Handle delete request
 if (isset($_POST['delete'])) {
@@ -66,7 +66,96 @@ try {
 } catch (PDOException $e) {
     echo "Error fetching home section data: " . $e->getMessage();
 }
-?>
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_about'])) {
+    // Retrieve and sanitize form data
+    $heading = htmlspecialchars($_POST['heading']);
+    $description = htmlspecialchars($_POST['description']);
+    $project_count = intval($_POST['project_count']);
+    $client_count = intval($_POST['client_count']);
+    $review_count = intval($_POST['review_count']);
+    $cv_link = htmlspecialchars($_POST['cv_link']);
+    $facebook_link = htmlspecialchars($_POST['facebook_link']);
+    $linkedin_link = htmlspecialchars($_POST['linkedin_link']);
+    $instagram_link = htmlspecialchars($_POST['instagram_link']);
+    $twitter_link = htmlspecialchars($_POST['twitter_link']);
+    $skills = htmlspecialchars($_POST['skills']);
+  
+    // Update database
+    try {
+        $stmt = $pdo->prepare("UPDATE about_section SET heading = :heading, description = :description, project_count = :project_count, client_count = :client_count, review_count = :review_count, cv_link = :cv_link, facebook_link = :facebook_link, linkedin_link = :linkedin_link, instagram_link = :instagram_link, twitter_link = :twitter_link, skills = :skills WHERE id = :id");
+        $stmt->execute([
+            'heading' => $heading,
+            'description' => $description,
+            'project_count' => $project_count,
+            'client_count' => $client_count,
+            'review_count' => $review_count,
+            'cv_link' => $cv_link,
+            'facebook_link' => $facebook_link,
+            'linkedin_link' => $linkedin_link,
+            'instagram_link' => $instagram_link,
+            'twitter_link' => $twitter_link,
+            'skills' => $skills,
+            'id' => 1 // Assuming there's an ID of 1 for the About section
+        ]);
+        echo '<script>alert("About section updated successfully."); window.location.href="adminDash.php";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+  }
+  
+  // Fetch current data for the About section
+  try {
+    $stmt = $pdo->prepare("SELECT * FROM about_section WHERE id = :id");
+    $stmt->execute(['id' => 1]);
+    $aboutData = $stmt->fetch(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+  }
+
+// Handle adding a service
+if (isset($_POST['add_service'])) {
+    $service_title = htmlspecialchars($_POST['service_title']);
+    $service_description = htmlspecialchars($_POST['service_description']);
+    $service_icon = $_FILES['service_icon']['name'];
+
+    // Handle file upload
+    if ($service_icon) {
+        $target_dir = "../ICONS/";
+        $target_file = $target_dir . basename($service_icon);
+        move_uploaded_file($_FILES['service_icon']['tmp_name'], $target_file);
+    }
+
+    // Insert into database
+    try {
+        $stmt = $pdo->prepare("INSERT INTO services (service_icon, service_title, service_description) VALUES (:service_icon, :service_title, :service_description)");
+        $stmt->execute([
+            'service_icon' => $service_icon,
+            'service_title' => $service_title,
+            'service_description' => $service_description
+        ]);
+        echo '<script>alert("Service added successfully."); window.location.href="adminDash.php";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+// Handle deleting a service
+if (isset($_POST['delete_service'])) {
+    $service_id = $_POST['service_id'];
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM services WHERE serviceID = :serviceID");
+        $stmt->execute(['serviceID' => $service_id]);
+        echo '<script>alert("Service deleted successfully."); window.location.href="adminDash.php";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+// You can add code to handle editing services similarly
+
 ?>
 
 <!DOCTYPE html>
@@ -93,8 +182,7 @@ try {
                     MENU
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                    <li><a href="contact.html" class="dropdown-item">Contact Us</a></li>
-                    <li><a href="signIn.html" class="dropdown-item">Sign In</a></li>
+                    <li><a href="contact.html" class="dropdown-item">LogOut</a></li>
                 </ul>
             </div>
         </div>
@@ -186,6 +274,105 @@ try {
             </form>
         </div>
     </section>
+
+    <section id="edit-about-section" class="section-padding py-5">
+    <div class="container-lg card shadow px-5 py-4">
+        <h2>Edit About Section</h2>
+        <form action="adminDash.php" method="post">
+            <div class="mb-3">
+                <label for="heading" class="form-label">Section Heading</label>
+                <input type="text" class="form-control" id="heading" name="heading" value="<?= htmlspecialchars($aboutData['heading']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required><?= htmlspecialchars($aboutData['description']); ?></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="project_count" class="form-label">Projects Completed</label>
+                <input type="number" class="form-control" id="project_count" name="project_count" value="<?= htmlspecialchars($aboutData['project_count']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="client_count" class="form-label">Happy Clients</label>
+                <input type="number" class="form-control" id="client_count" name="client_count" value="<?= htmlspecialchars($aboutData['client_count']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="review_count" class="form-label">Positive Reviews</label>
+                <input type="number" class="form-control" id="review_count" name="review_count" value="<?= htmlspecialchars($aboutData['review_count']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="cv_link" class="form-label">CV Link</label>
+                <input type="url" class="form-control" id="cv_link" name="cv_link" value="<?= htmlspecialchars($aboutData['cv_link']); ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="facebook_link" class="form-label">Facebook Link</label>
+                <input type="url" class="form-control" id="facebook_link" name="facebook_link" value="<?= htmlspecialchars($aboutData['facebook_link']); ?>">
+            </div>
+            <div class="mb-3">
+                <label for="linkedin_link" class="form-label">LinkedIn Link</label>
+                <input type="url" class="form-control" id="linkedin_link" name="linkedin_link" value="<?= htmlspecialchars($aboutData['linkedin_link']); ?>">
+            </div>
+            <div class="mb-3">
+                <label for="instagram_link" class="form-label">Instagram Link</label>
+                <input type="url" class="form-control" id="instagram_link" name="instagram_link" value="<?= htmlspecialchars($aboutData['instagram_link']); ?>">
+            </div>
+            <div class="mb-3">
+                <label for="twitter_link" class="form-label">Twitter Link</label>
+                <input type="url" class="form-control" id="twitter_link" name="twitter_link" value="<?= htmlspecialchars($aboutData['twitter_link']); ?>">
+            </div>
+            <div class="mb-3">
+                <label for="skills" class="form-label">Skills (JSON format)</label>
+                <textarea class="form-control" id="skills" name="skills" rows="5" required><?= htmlspecialchars($aboutData['skills']); ?></textarea>
+            </div>
+            <button type="submit" name="edit_about" class="btn btn-primary">Update About Section</button>
+        </form>
+    </div>
+</section>
+<section id="edit-services-section" class="section-padding py-5">
+    <div class="container-lg card shadow px-5 py-4">
+        <h2>Manage Services</h2>
+
+        <!-- Form for Adding/Editing Service -->
+        <form action="adminDash.php" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="service_icon" class="form-label">Service Icon</label>
+                <input type="file" class="form-control" id="service_icon" name="service_icon">
+            </div>
+            <div class="mb-3">
+                <label for="service_title" class="form-label">Service Title</label>
+                <input type="text" class="form-control" id="service_title" name="service_title" required>
+            </div>
+            <div class="mb-3">
+                <label for="service_description" class="form-label">Service Description</label>
+                <textarea class="form-control" id="service_description" name="service_description" rows="3" required></textarea>
+            </div>
+            <button type="submit" name="add_service" class="btn btn-primary">Add Service</button>
+        </form>
+
+        <!-- Display Existing Services with Edit and Delete Options -->
+        <h3 class="mt-5">Existing Services</h3>
+        <ul class="list-group">
+            <?php
+            // Fetch existing services
+            $stmt = $pdo->query("SELECT * FROM services");
+            while ($service = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <?= htmlspecialchars($service['service_title']); ?>
+                    <div>
+                        <form action="adminDash.php" method="post" class="d-inline">
+                            <input type="hidden" name="service_id" value="<?= $service['serviceID']; ?>">
+                            <button type="submit" name="edit_service" class="btn btn-warning btn-sm">Edit</button>
+                        </form>
+                        <form action="adminDash.php" method="post" class="d-inline">
+                            <input type="hidden" name="service_id" value="<?= $service['serviceID']; ?>">
+                            <button type="submit" name="delete_service" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </li>
+            <?php endwhile; ?>
+        </ul>
+    </div>
+</section>
+
 
 
 

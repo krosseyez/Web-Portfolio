@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["email"] = $email;
 
         // Redirect to the admin dashboard
-        header("Location: ../html/adminDash.html");
+        header("Location: ../php/adminDash.php");
         exit;
     } else {
         $error = "Invalid email or password.";

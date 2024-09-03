@@ -34,8 +34,9 @@ require_once 'dbCon.php';
         </div>
     </nav>
 
-    <section id="contact-messages" class="section-padding py-5">
+    <section id="contact-messages" class="section-padding py-5 my-4">
         <div class="container-lg card shadow">
+        <h2>Messages</h2>
             <div class="accordion accordion-flush" id="accordionFlushExample">
                 <?php
                 try {
@@ -278,6 +279,73 @@ require_once 'dbCon.php';
         </table>
     </div>
 </section>
+
+<section id="edit-testimonials-section" class="section-padding py-5">
+    <div class="container-lg card shadow px-5 py-4">
+        <h2>Edit Testimonials Section</h2>
+
+        <!-- Add New Testimonial Form -->
+        <form action="adminDash.php" method="post">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="position" class="form-label">Position</label>
+                <input type="text" class="form-control" id="position" name="position" required>
+            </div>
+            <div class="mb-3">
+                <label for="testimonial_text" class="form-label">Testimonial</label>
+                <textarea class="form-control" id="testimonial_text" name="testimonial_text" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating (1-5)</label>
+                <input type="number" class="form-control" id="rating" name="rating" min="1" max="5" required>
+            </div>
+            <button type="submit" name="add_testimonial" class="btn btn-primary">Add Testimonial</button>
+        </form>
+
+        <!-- Display Existing Testimonials -->
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Testimonial</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                // Fetch existing testimonials
+                $stmt = $pdo->query("SELECT * FROM testimonials ORDER BY created_at DESC");
+                $testimonials = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($testimonials as $testimonial):
+                ?>
+                    <tr>
+                        <td><?= htmlspecialchars($testimonial['name']); ?></td>
+                        <td><?= htmlspecialchars($testimonial['position']); ?></td>
+                        <td><?= htmlspecialchars($testimonial['testimonial_text']); ?></td>
+                        <td><?= htmlspecialchars($testimonial['rating']); ?></td>
+                        <td>
+                            <form action="editTestimonial.php" method="post" style="display:inline;">
+                                <input type="hidden" name="testimonialID" value="<?= $testimonial['testimonialID']; ?>">
+                                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                            </form>
+                            <form action="deleteTestimonial.php" method="post" style="display:inline;">
+                                <input type="hidden" name="testimonialID" value="<?= $testimonial['testimonialID']; ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 
 
     <!-- Toast Notification for Copying Email -->

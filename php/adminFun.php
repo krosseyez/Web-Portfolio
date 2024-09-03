@@ -180,4 +180,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_project'])) {
         echo "Error: " . $e->getMessage();
     }
 }
-?>
+
+// Check if the form for adding a new testimonial has been submitted
+if (isset($_POST['add_testimonial'])) {
+    // Prepare the SQL statement to insert a new testimonial into the database
+    $stmt = $pdo->prepare("INSERT INTO testimonials (name, position, testimonial_text, rating) VALUES (?, ?, ?, ?)");
+
+    // Execute the prepared statement with the form data
+    $stmt->execute([
+        $_POST['name'],               // The name of the person giving the testimonial
+        $_POST['position'],           // The position or title of the person
+        $_POST['testimonial_text'],   // The content of the testimonial
+        $_POST['rating']              // The rating given by the person (1-5)
+    ]);
+
+    // Redirect back to the admin dashboard after adding the testimonial
+    header("Location: adminDash.php");
+    exit;
+}
+
+// Check if the form for editing an existing testimonial has been submitted
+if (isset($_POST['edit_testimonial'])) {
+    // Prepare the SQL statement to update an existing testimonial
+    $stmt = $pdo->prepare("UPDATE testimonials SET name = ?, position = ?, testimonial_text = ?, rating = ? WHERE testimonialID = ?");
+
+    // Execute the prepared statement with the updated form data
+    $stmt->execute([
+        $_POST['name'],               // The updated name
+        $_POST['position'],           // The updated position
+        $_POST['testimonial_text'],   // The updated testimonial text
+        $_POST['rating'],             // The updated rating
+        $_POST['testimonialID']       // The ID of the testimonial to update
+    ]);
+
+    // Redirect back to the admin dashboard after updating the testimonial
+    header("Location: adminDash.php");
+    exit;
+}
+
+// Check if the form for deleting a testimonial has been submitted
+if (isset($_POST['delete_testimonial'])) {
+    // Prepare the SQL statement to delete the testimonial with the given ID
+    $stmt = $pdo->prepare("DELETE FROM testimonials WHERE testimonialID = ?");
+
+    // Execute the prepared statement with the ID of the testimonial to delete
+    $stmt->execute([$_POST['testimonialID']]);
+
+    // Redirect back to the admin dashboard after deleting the testimonial
+    header("Location: adminDash.php");
+    exit;
+}
+
+// Fetch all existing testimonials from the database to display them in the admin dashboard
+$stmt = $pdo->query("SELECT * FROM testimonials ORDER BY created_at DESC");
+$testimonials = $stmt->fetchAll(PDO::FETCH_ASSOC);
+

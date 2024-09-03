@@ -1,6 +1,6 @@
 <?php
 // Include the database connection file
-require_once '../php/dbCon.php';
+require_once 'dbCon.php';
 
 // Initialize variables for home section data
 $dev_image = '';
@@ -85,6 +85,9 @@ try {
   echo "Error: " . $e->getMessage();
 }
 
+// Fetch testimonials from the database
+$stmt = $pdo->query("SELECT * FROM testimonials ORDER BY created_at DESC");
+$testimonials = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -232,6 +235,52 @@ try {
                     <p><a class="text-info" href="<?= htmlspecialchars($project['project_link']); ?>" target="_blank">Live Demo</a></p>
                 </div>
             <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding py-5">
+    <div class="container-lg">
+        <div class="row">
+            <div class="col text-center section-heading">
+                <h3>Testimonials</h3>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-xl-7">
+                <div id="carousel1" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <?php foreach ($testimonials as $index => $testimonial): ?>
+                            <button
+                                type="button"
+                                data-bs-target="#carousel1"
+                                data-bs-slide-to="<?= $index; ?>"
+                                class="<?= $index === 0 ? 'active' : ''; ?> bg-secondary"
+                                aria-current="true"
+                                aria-label="Slide <?= $index + 1; ?>"
+                            ></button>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="carousel-inner">
+                        <?php foreach ($testimonials as $index => $testimonial): ?>
+                            <div class="bg-white carousel-item <?= $index === 0 ? 'active' : ''; ?> shadow-sm rounded mb-5 p-4">
+                                <div class="names">
+                                    <h3 class="fs-6 mb-1"><?= htmlspecialchars($testimonial['name']); ?></h3>
+                                    <p class="text-muted m-0"><?= htmlspecialchars($testimonial['position']); ?></p>
+                                </div>
+                                <p class="text-muted mt-3">
+                                    <?= htmlspecialchars($testimonial['testimonial_text']); ?>
+                                </p>
+                                <div class="rating">
+                                    <?php for ($i = 0; $i < $testimonial['rating']; $i++): ?>
+                                        <img src="../ICONS/star-fill.svg" alt="star">
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

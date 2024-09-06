@@ -2,20 +2,20 @@
 // Include the database connection file
 require_once 'dbCon.php';
 
-// Handle delete request
+// Handle deleting a message
 if (isset($_POST['delete'])) {
-    $idToDelete = $_POST['message_id'];
+    $message_id = $_POST['message_id'];
 
     try {
-        $deleteStmt = $pdo->prepare("DELETE FROM contact_form WHERE id = :id");
-        $deleteStmt->execute([':id' => $idToDelete]);
-
-        // Trigger the toast by setting a flag in the session
-        echo "<script>showDeleteToast();</script>";
+        $stmt = $pdo->prepare("DELETE FROM contact_form WHERE id = :id");
+        $stmt->execute(['id' => $message_id]);
+        echo '<script>window.location.href="adminDash.php?toast=messageDeleted";</script>';
     } catch (PDOException $e) {
-        echo "Error deleting message: " . $e->getMessage();
+        echo "Error: " . $e->getMessage();
     }
 }
+
+
 
 // Handle form submission for editing the home section
 if (isset($_POST['edit_home'])) {
@@ -179,6 +179,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_project'])) {
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
+
+}
+
+// Handle deleting a project
+if (isset($_POST['delete_project'])) {
+    $project_id = $_POST['project_id'];
+
+    try {
+        $stmt = $pdo->prepare("DELETE FROM portfolio WHERE projectID = :projectID");
+        $stmt->execute(['projectID' => $project_id]);
+        echo '<script>window.location.href="adminDash.php?toast=projectDeleted";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
 }
 
 // Check if the form for adding a new testimonial has been submitted
@@ -218,18 +232,20 @@ if (isset($_POST['edit_testimonial'])) {
     exit;
 }
 
-// Check if the form for deleting a testimonial has been submitted
+// Handle deleting a testimonial
 if (isset($_POST['delete_testimonial'])) {
-    // Prepare the SQL statement to delete the testimonial with the given ID
-    $stmt = $pdo->prepare("DELETE FROM testimonials WHERE testimonialID = ?");
+    $testimonial_id = $_POST['testimonial_id'];
 
-    // Execute the prepared statement with the ID of the testimonial to delete
-    $stmt->execute([$_POST['testimonialID']]);
-
-    // Redirect back to the admin dashboard after deleting the testimonial
-    header("Location: adminDash.php");
-    exit;
+    try {
+        $stmt = $pdo->prepare("DELETE FROM testimonials WHERE testimonialID = :testimonialID");
+        $stmt->execute(['testimonialID' => $testimonial_id]);
+        echo '<script>window.location.href="adminDash.php?toast=testimonialDeleted";</script>';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
 }
+
+
 
 // Fetch all existing testimonials from the database to display them in the admin dashboard
 $stmt = $pdo->query("SELECT * FROM testimonials ORDER BY created_at DESC");

@@ -268,10 +268,11 @@ require_once 'dbCon.php';
                                 <input type="hidden" name="projectID" value="<?= $project['projectID']; ?>">
                                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>
                             </form>
-                            <form action="deleteProject.php" method="post" style="display:inline;">
-                                <input type="hidden" name="projectID" value="<?= $project['projectID']; ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
-                            </form>
+                            <form action="adminDash.php" method="post" style="display:inline;">
+    <input type="hidden" name="project_id" value="<?= $project['projectID']; ?>">
+    <button type="submit" name="delete_project" class="btn btn-danger btn-sm" >Delete</button>
+</form>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -334,10 +335,11 @@ require_once 'dbCon.php';
                                 <input type="hidden" name="testimonialID" value="<?= $testimonial['testimonialID']; ?>">
                                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>
                             </form>
-                            <form action="deleteTestimonial.php" method="post" style="display:inline;">
-                                <input type="hidden" name="testimonialID" value="<?= $testimonial['testimonialID']; ?>">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
-                            </form>
+                            <form action="adminDash.php" method="post" style="display:inline;">
+    <input type="hidden" name="testimonial_id" value="<?= $testimonial['testimonialID']; ?>">
+    <button type="submit" name="delete_testimonial" class="btn btn-danger btn-sm">Delete</button>
+</form>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -362,19 +364,42 @@ require_once 'dbCon.php';
         </div>
     </div>
 
-    <!-- Toast Notification for Deletion -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="deleteToast" class="toast align-items-center text-white bg-SECONDARY border-0" role="alert"
-            aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    Message deleted successfully!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
+<!-- Toast Notification for Message Deletion -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="messageDeleteToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Message deleted successfully!
             </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
+</div>
+
+<!-- Toast Notification for Project Deletion -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="projectDeleteToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Project deleted successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification for Testimonial Deletion -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="testimonialDeleteToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Testimonial deleted successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
@@ -401,13 +426,27 @@ require_once 'dbCon.php';
             var toast = new bootstrap.Toast(toastElement);
             toast.show();
         }
-
-        // Function to show the delete toast notification
-        function showDeleteToast() {
-            var toastElement = document.getElementById("deleteToast");
+    // Function to show the toast notification based on URL parameters
+    function showToast(toastId) {
+        var toastElement = document.getElementById(toastId);
+        if (toastElement) {
             var toast = new bootstrap.Toast(toastElement);
             toast.show();
         }
+    }
+
+    // Check URL for toast parameter and show corresponding toast
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('toast')) {
+        var toastType = urlParams.get('toast');
+        if (toastType === 'messageDeleted') {
+            showToast('messageDeleteToast');
+        } else if (toastType === 'projectDeleted') {
+            showToast('projectDeleteToast');
+        } else if (toastType === 'testimonialDeleted') {
+            showToast('testimonialDeleteToast');
+        }
+    }
     </script>
 </body>
 

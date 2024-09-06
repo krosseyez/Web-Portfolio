@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Redirect to a thank you page or display a success message
         echo '<script>
                 alert("It was successful, we will get back in touch soon.");
-                window.location.href = "../html/index.html";
+                window.location.href = "index.php";
               </script>';
     } catch (PDOException $e) {
         // Display an error message if something goes wrong
